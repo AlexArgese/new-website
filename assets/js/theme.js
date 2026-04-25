@@ -11,6 +11,7 @@ var theme = {
     theme.subMenu();
     theme.offCanvas();
     theme.parentDropdownLinks();
+    theme.navbarHoverDropdowns();
     theme.isotope();
     theme.onepageHeaderOffset();
     theme.spyScroll();
@@ -210,6 +211,18 @@ var theme = {
         closeDropdownTree(item);
       });
     });
+
+    // Hide sticky clone navbar while offcanvas is open (mobile/tablet only)
+    navOffCanvas.addEventListener('show.bs.offcanvas', function() {
+      if (window.innerWidth < 992) {
+        const clone = document.querySelector('.navbar-clone');
+        if (clone) clone.style.visibility = 'hidden';
+      }
+    });
+    navOffCanvas.addEventListener('hidden.bs.offcanvas', function() {
+      const clone = document.querySelector('.navbar-clone');
+      if (clone) clone.style.visibility = '';
+    });
   },
   /**
    * Parent Dropdown Links
@@ -246,6 +259,33 @@ var theme = {
 
     syncParentDropdownLinks();
     window.addEventListener('resize', syncParentDropdownLinks);
+  },
+  /**
+   * Navbar Hover Dropdowns
+   * On desktop (≥992px), opens dropdown on mouseenter and closes on mouseleave.
+   */
+  navbarHoverDropdowns: () => {
+    const navDropdowns = document.querySelectorAll('.navbar:not(.offcanvas-nav) .navbar-nav > .dropdown');
+    navDropdowns.forEach(item => {
+      item.addEventListener('mouseenter', function () {
+        if (window.innerWidth < 992) return;
+        const toggle = this.querySelector('.dropdown-toggle');
+        const menu = this.querySelector('.dropdown-menu');
+        if (!toggle || !menu) return;
+        this.classList.add('show');
+        menu.classList.add('show');
+        toggle.setAttribute('aria-expanded', 'true');
+      });
+      item.addEventListener('mouseleave', function () {
+        if (window.innerWidth < 992) return;
+        const toggle = this.querySelector('.dropdown-toggle');
+        const menu = this.querySelector('.dropdown-menu');
+        if (!toggle || !menu) return;
+        this.classList.remove('show');
+        menu.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
   },
   /**
    * Isotope
